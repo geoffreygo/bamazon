@@ -1,6 +1,8 @@
+// dependencies
 var mysql = require("mysql");
 var inquire = require("inquirer");
 
+// Connection object
 var connection = mysql.createConnection({
   host: "localhost",
   port: 3306,
@@ -9,6 +11,7 @@ var connection = mysql.createConnection({
   database: "bamazon"
 });
 
+// Connects to db and then starts app
 function connect() {
     connection.connect(function (err) {
         if (err) throw err;
@@ -17,6 +20,7 @@ function connect() {
     })
 }
 
+// start function, gives manager their options and calls appropriate function
 function start(){
     inquire.prompt([
         {
@@ -41,6 +45,7 @@ function start(){
     });
 }
 
+// Lists all the products in the db
 function viewProducts() {
     connection.query("SELECT * FROM products", function (err, res) {
         if (err) throw err;
@@ -52,6 +57,7 @@ function viewProducts() {
     })
 }
 
+// Lists any products with less than 5 in stock
 function viewInventory() {
     connection.query("SELECT * FROM products WHERE stock_quantity < 5", function (err, res) {
         if (err) throw err;
@@ -67,6 +73,7 @@ function viewInventory() {
     })
 }
 
+// Allows manager to add stock to an item. Asks which item and how many, then updates the db, and notifies the manager
 function addInventory() {
     inquire.prompt([
         {
@@ -94,7 +101,9 @@ function addInventory() {
     })
 }
 
+// Allows manager to add a product to the db
 function addProduct() {
+    // gathers information on the product
     inquire.prompt([
         {
             type: "input",
@@ -117,15 +126,18 @@ function addProduct() {
             name: "qty",
         },
     ]).then(function (response) {
+        // inserts the new product into the db
         connection.query("INSERT INTO products SET ?", {
             product_name: response.name,
             department_name: response.dept,
             price: response.price,
             stock_quantity: response.qty,
         })
+        // notifies the user that the item has been added and takes them back to the menu
         console.log(response.name + " has been added to inventory at a price of $" + response.price + " and a quantity of " + response.qty + ".\n");
         start();
     })
 }
 
+// calls the connect to the db, starting the app
 connect();
