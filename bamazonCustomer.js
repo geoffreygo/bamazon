@@ -25,7 +25,7 @@ function start() {
     connection.query("SELECT * FROM products", function (err, res) {
         if (err) throw err;
         res.forEach(element => {
-            console.log("Item # " + element.item_id + " " + element.product_name + " $" + element.price + "\n");
+            console.log("\x1b[37m", "Item # " + element.item_id + " " + element.product_name + " $" + element.price + "\n");
         })
         purchase();
     })
@@ -47,23 +47,23 @@ function purchase() {
         // then checks to see if there are enough
     ]).then(function (response) {
         connection.query("SELECT * FROM products WHERE ?", { item_id: response.item }, function (err, res) {
-            console.log(res);
+            // console.log(res);
             if (err) throw err;
             if (response.amt > res[0].stock_quantity) {
-                console.log("Purchase quantity exceeds stock.")
+                console.log("\x1b[31m", "Purchase quantity exceeds stock.")
                 start();
             // if there are, it updates the item, subtracting the stock sold, and adds the sales to the appropriate field
             } else {
                 var quant = res[0].stock_quantity - parseInt(response.amt);
                 var spend = res[0].product_sales + (res[0].price * parseInt(response.amt));
-                console.log(quant);
+                // console.log(quant);
                 connection.query("UPDATE products SET ? WHERE ?", [{ stock_quantity: quant, product_sales: spend }, { item_id: response.item }],
                     function (err) {
                         if (err) throw err;
                     }
                 )
                 // finally, it lets the user know that their purchase was successful and restarts the app so they can buy more
-                console.log("You successfully purchased " + response.amt + " of " + res[0].product_name + ".\n");
+                console.log("\x1b[37m", "You successfully purchased " + response.amt + " of " + res[0].product_name + ".\n");
                 start();
             }
         })

@@ -88,7 +88,7 @@ function addInventory() {
         },
     ]).then(function (response) {
         connection.query("SELECT * FROM products WHERE ?", { item_id: response.name}, function(err, res) {
-            console.log(res);
+            // console.log(res);
             if (err) throw err;
             var quant = res[0].stock_quantity + parseInt(response.qty);
             console.log("The quantity for " + res[0].product_name + " has been updated to " + quant + ".\n");
